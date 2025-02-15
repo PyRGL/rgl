@@ -1,4 +1,4 @@
-# RGL - RAG on Graphs Library  
+# RGL - RAG-on-Graphs Library  
 
 RGL is a **friendly and efficient GraphRAG library** for AI researchers, providing seamless integration with **DGL** and **PyG** while offering high-performance graph retrieval algorithms, many of which are optimized in **C++** for efficiency.  
 
