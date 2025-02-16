@@ -5,6 +5,9 @@ build:
    tools:
       python: "3.8"
 
+sphinx:
+  configuration: doc/source/conf.py  # Adjust the path to your conf.py accordingly
+
 python:
    install:
       - requirements: doc/requirements.txt
