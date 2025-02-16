@@ -50,9 +50,11 @@ Related Papers:"""
     print("=============================\n")
 
     sys_msg = "You are an expert in academic writing."
-    generated_abstract = llm_utils.chat_openai(prompt, model=model, system_message=sys_msg)
+    generated_abstract = llm_utils.chat_openai(prompt, model=model, sys_prompt=sys_msg)
     print("=== Generated Abstract ===")
     print(generated_abstract)
     print("\n=== Ground Truth Abstract ===")
     print(query_abstract_gt)
     print("\n" + "=" * 80 + "\n")
+
+    # TODO compare with no RA; compare with other retrieval methods
