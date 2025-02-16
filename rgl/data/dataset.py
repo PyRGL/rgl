@@ -14,36 +14,6 @@ import pickle
 DEFAULT_DATASETS_ROOT = "dataset"
 
 
-# def download_file(path, url_or_urls):
-#     if not isinstance(url_or_urls, list):
-#         urls = [url_or_urls]
-#     else:
-#         urls = url_or_urls
-
-#     last_except = None
-#     for url in urls:
-#         try:
-#             return keras.utils.get_file(path, origin=url)
-#         except Exception as e:
-#             last_except = e
-#             print(e)
-
-#     raise last_except
-
-
-# def save_cache(obj, path):
-#     with open(path, "wb") as f:
-#         pickle.dump(obj, f, protocol=4)
-
-
-# def load_cache(path):
-#     # if not os.path.exists(path):
-#     #     return None
-
-#     with open(path, "rb") as f:
-#         return pickle.load(f)
-
-
 def get_dataset_root_path(
     dataset_root_path=None, dataset_name=None, datasets_root_path=DEFAULT_DATASETS_ROOT, mkdir=False
 ):
@@ -128,22 +98,3 @@ class DownloadableRGLDataset(object):
 
     def download_graph(self):
         pass
-
-    # def load_data(self):
-    #     if self.cache_enabled and os.path.exists(self.cache_path):
-    #         print("cache file exists: {}, read cache".format(self.cache_path))
-    #         return load_cache(self.cache_path)
-
-    #     if self.download_urls is not None:
-    #         self.download()
-    #         self.extract_raw()
-    #     else:
-    #         print("downloading and extraction are ignored due to None download_urls")
-
-    #     processed = self.process()
-
-    #     if self.cache_enabled:
-    #         print("save processed data to cache: ", self.cache_path)
-    #         save_cache(processed, self.cache_path)
-
-    #     return processed

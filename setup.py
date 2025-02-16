@@ -4,7 +4,6 @@ from setuptools import setup, find_packages
 
 setup(
     name="rgl",
-    # license_file="LICENSE",
     python_requires=">3.5.0",
     version="0.0.1",
     author="anthonynus",

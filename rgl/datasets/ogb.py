@@ -16,9 +16,6 @@ def idx_to_mask(idx, size):
 
 
 class OGBRGLDataset(DownloadableRGLDataset):
-    """
-    OGB Node Property Prediction Datasets: https://ogb.stanford.edu/docs/nodeprop/
-    """
 
     def __init__(self, dataset_name, dataset_root_path=None):
         """
@@ -31,6 +28,9 @@ class OGBRGLDataset(DownloadableRGLDataset):
         if dataset_name == "ogbn-arxiv":
             download_urls = ["https://snap.stanford.edu/ogb/data/misc/ogbn_arxiv/titleabs.tsv.gz"]
             download_file_name = ["titleabs.tsv.gz"]
+        elif dataset_name == "ogbn-products":
+            download_urls = []
+            download_file_name = []
 
         super().__init__(
             dataset_name=dataset_name,
@@ -73,21 +73,3 @@ class OGBRGLDataset(DownloadableRGLDataset):
         abstract = titleabs[2].values
         self.raw_ndata["title"] = title
         self.raw_ndata["abstract"] = abstract
-
-        # dataset = NodePropPredDataset(name=self.dataset_name, root=self.download_root_path)
-
-        # graph, label = dataset[0]  # graph: library-agnostic graph object
-
-        # x = graph["node_feat"]
-        # edge_index = graph["edge_index"]
-
-        # # convert edge_index to directed
-        # edge_index, _ = convert_edge_to_directed(edge_index, None)
-
-        # label = label.flatten().astype(np.int32)
-        # graph = Graph(x=x, edge_index=edge_index, y=label)
-
-        # split_index = dataset.get_idx_split()
-        # train_index, valid_index, test_index = split_index["train"], split_index["valid"], split_index["test"]
-
-        # return graph, (train_index, valid_index, test_index)
