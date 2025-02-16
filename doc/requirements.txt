@@ -1,9 +1,7 @@
 networkx >= 2.1
 torch >= 2.4.0
-ogb >= 1.3.6
 faiss-cpu >= 1.8.0
-dgl >= 2.4.0
-tqdm
+dgl >= 2.0.0
 Sphinx == 3.5.4
 Jinja2<3.1
 sphinx_rtd_theme
@@ -12,3 +10,5 @@ pandas
 scipy
 numpy
 scikit-learn
+ogb
+tqdm
