@@ -1,6 +1,6 @@
 <!-- include logo svg in this markdown -->
 <p align="center">
-    <img src="rgl-logo.png" width="300"/>
+    <img src="rgl-logo.png" width="400"/>
 </p>
 
 # RGL - RAG-on-Graphs Library  
