@@ -1,12 +1,7 @@
 # coding=utf-8
 import os
-
-# from keras.utils.file_utils import _extract_archive
-# from shutil import unpack_archive
-from rgl.utils import extract_archive
+from rgl.utils.data_utils import extract_archive
 from torch.hub import download_url_to_file
-
-# from tf_geometric.utils.data_utils import download_file, load_cache, save_cache
 from shutil import copy
 from os.path import join as opj
 import pickle

@@ -5,7 +5,7 @@ import os
 
 # from keras.utils.data_utils import _extract_archive
 # from shutil import unpack_archive
-from rgl.utils import extract_archive
+from rgl.utils.data_utils import extract_archive
 import pandas as pd
 
 
