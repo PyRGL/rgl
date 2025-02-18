@@ -1,7 +1,11 @@
-import numpy as np
-import ctypes
-import os
+from rgl.graph_retrieval import libretrieval
 
+retrieve = libretrieval.retrieve
+batch_retrieve = libretrieval.batch_retrieve
+
+# import numpy as np
+# import ctypes
+# import os
 
 # def load_c_retrieve():
 #     lib_name = "libretrieval.dll" if os.name == "nt" else "libretrieval.so"
@@ -43,7 +47,3 @@ import os
 #     return ndcg_score
 
 # retrieve = load_c_retrieve()
-
-from rgl.graph_retrieval import libretrieval
-
-retrieve = libretrieval.retrieve
