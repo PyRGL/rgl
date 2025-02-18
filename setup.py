@@ -13,7 +13,14 @@ setup(
     author_email="e0403849@u.nus.edu",
     packages=packages,
     install_requires=["ogb", "patool"],
-    extras_require={},
+    extras_require={
+        # Note: The URL here is a direct reference to a wheel file.
+        # This example URL must be updated to match the correct version,
+        # Python version, and platform for your users.
+        "torch-2.4": [
+            "dgl @ https://data.dgl.ai/wheels/torch-2.4/dgl-0.9.0-cp38-cp38-linux_x86_64.whl"
+        ]
+    }
     package_data={},
     description="RGL - RAG-on-Graphs Library",
     license="GNU General Public License v3.0 (See LICENSE)",

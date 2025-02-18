@@ -57,10 +57,9 @@ class OGBRGLDataset(DownloadableRGLDataset):
 
     # https://github.com/tkipf/gcn/blob/master/gcn/utils.py
     def process(self):
+        dataset_lower = self.dataset_name.lower().replace("-", "_")
         if self.dataset_name == "ogbn-arxiv":
-            mapping_path = f"{self.graph_root_path}/{self.dataset_name.replace('-', '_')}/mapping/nodeidx2paperid.csv"
-            mapping_dir = os.path.dirname(mapping_path)
-            extract_archive(f"{mapping_path}.gz", mapping_dir)
+            mapping_path = f"{self.graph_root_path}/{dataset_lower}/mapping/nodeidx2paperid.csv.gz"
             nodeidx2paperid = pd.read_csv(mapping_path)
 
             titleabs_path = f"{self.raw_root_path}/titleabs.tsv"
@@ -75,9 +74,7 @@ class OGBRGLDataset(DownloadableRGLDataset):
             self.raw_ndata["abstract"] = abstract
 
         elif self.dataset_name == "ogbn-products":
-            mapping_path = f"{self.graph_root_path}/{self.dataset_name.replace('-', '_')}/mapping/nodeidx2asin.csv"
-            mapping_dir = os.path.dirname(mapping_path)
-            extract_archive(f"{mapping_path}.gz", mapping_dir)
+            mapping_path = f"{self.graph_root_path}/{dataset_lower}/mapping/nodeidx2asin.csv"
             nodeidx2asin = pd.read_csv(mapping_path)
 
             # find title using trn/tst.json instead of Yf.txt
