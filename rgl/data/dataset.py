@@ -81,10 +81,12 @@ class DownloadableRGLDataset(object):
 
     def extract_raw(self):
         if len(os.listdir(self.raw_root_path)) == 0:
-            if self.download_file_path.endswith(".npz"):
-                copy(self.download_file_path, os.path.join(self.raw_root_path, self.download_file_names))
-            else:
-                extract_archive(self.download_file_path, self.raw_root_path)
+            for file_path in os.listdir(self.download_root_path):
+                file_path = os.path.join(self.download_root_path, file_path)
+                if file_path.endswith(".npz"):  # direct copy
+                    copy(file_path, self.raw_root_path)
+                else:
+                    extract_archive(file_path, self.raw_root_path)
         else:
             print("raw data exists: {}, ignore".format(self.raw_root_path))
 

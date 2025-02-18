@@ -2,10 +2,10 @@ from sklearn.preprocessing import StandardScaler
 import os
 import numpy as np
 import pandas as pd
-import pickle
-import copy
-import logging
-import requests
+import tarfile
+import zipfile
+import gzip
+import patoolib
 
 import torch
 import dgl
@@ -15,89 +15,82 @@ from dgl.data.utils import load_graphs, save_graphs
 from dgl import RowFeatNormalizer
 from ogb.nodeproppred import DglNodePropPredDataset
 
-
-import os
-import tarfile
-import zipfile
-import gzip
-import shutil
-
-import os
-import tarfile
-import zipfile
-import gzip
-import shutil
 from tqdm import tqdm
+
+from rgl.utils import get_logger
+
+logger = get_logger()
 
 
 def extract_archive(file_path, output_dir):
     """
-    Extracts various archive formats (.zip, .tar, .tar.gz, .tgz, .gz) with a progress bar.
+    Extracts various archive formats (.zip, .tar, .tar.gz, .tgz, .gz) using patoolib.
 
     Args:
         file_path (str): Path to the compressed file.
         output_dir (str): Destination folder.
     """
     os.makedirs(output_dir, exist_ok=True)
-    if len(os.listdir(output_dir)) > 0:
+    # If the output directory already contains files, skip extraction.
+    if os.listdir(output_dir):
         return
 
-    # Handle ZIP files
-    if file_path.endswith(".zip"):
-        with zipfile.ZipFile(file_path, "r") as zip_ref:
-            file_list = zip_ref.namelist()
-            with tqdm(total=len(file_list), desc="Extracting ZIP", unit="file") as bar:
-                for file in file_list:
-                    zip_ref.extract(file, output_dir)
-                    bar.update(1)
-
-    # Handle TAR, TAR.GZ, TGZ files
-    elif file_path.endswith((".tar", ".tar.gz", ".tgz")):
-        with tarfile.open(file_path, "r:*") as tar_ref:
-            members = tar_ref.getmembers()
-            with tqdm(total=len(members), desc="Extracting TAR", unit="file") as bar:
-                for member in members:
-                    tar_ref.extract(member, path=output_dir)
-                    bar.update(1)
-
-    # Handle GZ files (single file compression)
-    elif file_path.endswith(".gz") and not file_path.endswith(".tar.gz"):
-        output_file = os.path.join(output_dir, os.path.basename(file_path)[:-3])
-        file_size = os.path.getsize(file_path)  # Get file size for progress tracking
-        chunk_size = 1024 * 1024  # 1MB
-
-        with gzip.open(file_path, "rb") as f_in, open(output_file, "wb") as f_out, tqdm(
-            total=file_size, unit="B", unit_scale=True, desc="Extracting GZ"
-        ) as bar:
-            while chunk := f_in.read(chunk_size):
-                f_out.write(chunk)
-                bar.update(len(chunk))
-
-    else:
-        raise ValueError(f"Unsupported file format: {file_path}")
+    try:
+        # patoolib will automatically detect the archive type and use the appropriate tool.
+        patoolib.extract_archive(file_path, outdir=output_dir, interactive=False)
+    except Exception as e:
+        raise ValueError(f"Extraction failed for {file_path}: {str(e)}") from e
 
     print(f"Extraction complete: {file_path} → {output_dir}")
 
 
-# # Example usage
-# extract_archive("dataset.zip", "output_folder")
-# extract_archive("archive.tar.gz", "output_folder")
-# extract_archive("data.gz", "output_folder")
+# def extract_archive(file_path, output_dir):
+#     """
+#     Extracts various archive formats (.zip, .tar, .tar.gz, .tgz, .gz) with a progress bar.
 
+#     Args:
+#         file_path (str): Path to the compressed file.
+#         output_dir (str): Destination folder.
+#     """
+#     os.makedirs(output_dir, exist_ok=True)
+#     if len(os.listdir(output_dir)) > 0:
+#         return
 
-def setup_logger():
-    logger = logging.getLogger(__name__)
-    if not logger.hasHandlers():
-        logger.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler()
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    return logger
+#     # Handle ZIP files
+#     if file_path.endswith(".zip"):
+#         with zipfile.ZipFile(file_path, "r") as zip_ref:
+#             file_list = zip_ref.namelist()
+#             with tqdm(total=len(file_list), desc="Extracting ZIP", unit="file") as bar:
+#                 for file in file_list:
+#                     zip_ref.extract(file, output_dir)
+#                     bar.update(1)
 
+#     # Handle TAR, TAR.GZ, TGZ files
+#     elif file_path.endswith((".tar", ".tar.gz", ".tgz")):
+#         with tarfile.open(file_path, "r:*") as tar_ref:
+#             members = tar_ref.getmembers()
+#             with tqdm(total=len(members), desc="Extracting TAR", unit="file") as bar:
+#                 for member in members:
+#                     tar_ref.extract(member, path=output_dir)
+#                     bar.update(1)
 
-logger = setup_logger()
+#     # Handle GZ files (single file compression) TODO sometimes need "tar -xzf" to be correct
+#     elif file_path.endswith(".gz") and not file_path.endswith(".tar.gz"):
+#         output_file = os.path.join(output_dir, os.path.basename(file_path)[:-3])
+#         file_size = os.path.getsize(file_path)  # Get file size for progress tracking
+#         chunk_size = 1024 * 1024  # 1MB
+
+#         with gzip.open(file_path, "rb") as f_in, open(output_file, "wb") as f_out, tqdm(
+#             total=file_size, unit="B", unit_scale=True, desc="Extracting GZ"
+#         ) as bar:
+#             while chunk := f_in.read(chunk_size):
+#                 f_out.write(chunk)
+#                 bar.update(len(chunk))
+
+#     else:
+#         raise ValueError(f"Unsupported file format: {file_path}")
+
+#     print(f"Extraction complete: {file_path} → {output_dir}")
 
 
 def download(url, path=None):
@@ -120,15 +113,15 @@ def mask_to_idx(mask):
 
 
 def to_bidir(g):
-    logger.info(f"num_edges (raw): {g.num_edges()}")
+    print(f"num_edges (raw): {g.num_edges()}")
     g = dgl.remove_self_loop(g)
-    logger.info(f"num_edges (remove self loop): {g.num_edges()}")
+    print(f"num_edges (remove self loop): {g.num_edges()}")
     g = dgl.add_reverse_edges(g)
-    logger.info(f"num_edges (add reverse edges): {g.num_edges()}")
+    print(f"num_edges (add reverse edges): {g.num_edges()}")
     g = dgl.to_simple(g)
     n_edge = g.num_edges() // 2
-    logger.info(f"num_edges (simple graph)(directed): {g.num_edges()}")
-    logger.info(f"num_edges (simple graph)(undirected): {n_edge}")
+    print(f"num_edges (simple graph)(directed): {g.num_edges()}")
+    print(f"num_edges (simple graph)(undirected): {n_edge}")
     return g
 
 
@@ -136,7 +129,7 @@ def to_bidir(g):
 def norm_feat(graph):
     transform = RowFeatNormalizer(subtract_min=True, node_feat_names=["feat"])
     graph = transform(graph)
-    logger.info(f"END normalize")
+    print(f"END normalize")
     return graph
 
 

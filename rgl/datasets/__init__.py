@@ -1,1 +1,1 @@
-from rgl.datasets.ogb import OGBRGLDataset
+from .ogb import OGBRGLDataset
