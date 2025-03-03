@@ -23,3 +23,9 @@ RGL is a **friendly and efficient Graph Retrieval-Augmented Generation (GraphRAG
 ```bash
 pip install rgl
 ```
+
+## Run demos
+
+```bash
+python demo/some_demo.py
+```

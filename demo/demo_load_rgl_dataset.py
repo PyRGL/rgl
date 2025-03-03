@@ -1,4 +1,17 @@
 from rgl.datasets.ogb import OGBRGLDataset
+from rgl.datasets.citation_graph import CoraRGLDataset
+
+dataset = CoraRGLDataset()
+print("loading cora")
+print(dataset.graph)
+print(dataset.feat.shape)
+print(dataset.label)
+print(dataset.train_mask)
+print(dataset.val_mask)
+print(dataset.test_mask)
+i = 1
+print("Title:", dataset.raw_ndata["title"][i])
+print("Abstract:", dataset.raw_ndata["abstract"][i])
 
 dataset = OGBRGLDataset("ogbn-arxiv")
 print("loading ogbn-arxiv")
@@ -21,3 +34,4 @@ print(dataset.train_mask)
 print(dataset.val_mask)
 print(dataset.test_mask)
 print(dataset.raw_ndata["title"][0])
+print("-" * 100)

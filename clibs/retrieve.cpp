@@ -37,11 +37,24 @@ vector<int> retrieve(const vector<int>& src, const vector<int>& dst, const vecto
     }
     nNodes++;  // because the maximum node id is (nNodes - 1)
 
-    // 2. Build the undirected graph as an adjacency list.
-    vector<vector<int>> adj(nNodes);
+    // 2. Build the undirected graph as an adjacency list,
+    //    avoiding duplicate edges and self loops.
+    vector<unordered_set<int>> adjSets(nNodes);
     for (size_t i = 0; i < src.size(); i++) {
-        adj[src[i]].push_back(dst[i]);
-        adj[dst[i]].push_back(src[i]);
+        int u = src[i];
+        int v = dst[i];
+        if (u == v)  // Skip self loops.
+            continue;
+        // Inserting into a set avoids duplicate entries.
+        adjSets[u].insert(v);
+        adjSets[v].insert(u);
+    }
+    // Convert the sets to vectors.
+    vector<vector<int>> adj(nNodes);
+    for (int i = 0; i < nNodes; i++) {
+        for (int nb : adjSets[i]) {
+            adj[i].push_back(nb);
+        }
     }
 
     // 3. Multi-source BFS from all seeds.
@@ -149,11 +162,24 @@ vector<vector<int>> batch_retrieve(const vector<int>& src, const vector<int>& ds
     }
     nNodes++;  // because the maximum node id is (nNodes - 1)
 
-    // 2. Build the undirected graph as an adjacency list.
-    vector<vector<int>> adj(nNodes);
+    // 2. Build the undirected graph as an adjacency list,
+    //    avoiding duplicate edges and self loops.
+    vector<unordered_set<int>> adjSets(nNodes);
     for (size_t i = 0; i < src.size(); i++) {
-        adj[src[i]].push_back(dst[i]);
-        adj[dst[i]].push_back(src[i]);
+        int u = src[i];
+        int v = dst[i];
+        if (u == v)  // Skip self loops.
+            continue;
+        // Inserting into a set avoids duplicate entries.
+        adjSets[u].insert(v);
+        adjSets[v].insert(u);
+    }
+    // Convert the sets to vectors.
+    vector<vector<int>> adj(nNodes);
+    for (int i = 0; i < nNodes; i++) {
+        for (int nb : adjSets[i]) {
+            adj[i].push_back(nb);
+        }
     }
 
     vector<vector<int>> results;

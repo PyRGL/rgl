@@ -4,10 +4,21 @@ import torch
 import os
 import patoolib
 
-# from keras.utils.data_utils import _extract_archive
-# from shutil import unpack_archive
-from rgl.utils.data_utils import extract_archive
+import dgl
+import dgl.data
+import numpy as np
+import networkx as nx
+import scipy.sparse as sp
+import re
 import pandas as pd
+import numpy as np
+from collections import defaultdict
+import itertools
+
+from rgl.utils.data_utils import extract_archive
+from rgl.utils.utils import get_logger
+
+logger = get_logger()
 
 
 def idx_to_mask(idx, size):
@@ -30,10 +41,13 @@ class OGBRGLDataset(DownloadableRGLDataset):
             download_urls = ["https://snap.stanford.edu/ogb/data/misc/ogbn_arxiv/titleabs.tsv.gz"]
             download_file_name = ["titleabs.tsv.gz"]
         elif dataset_name == "ogbn-products":
-            # manually download:
-            # https://drive.google.com/file/d/1gsabsx8KR2N9jJz16jTcA0QASXsNuKnN/view?usp=sharing
+            # manually download: https://drive.google.com/file/d/1gsabsx8KR2N9jJz16jTcA0QASXsNuKnN/view?usp=sharing
             download_urls = []
             download_file_name = []
+        elif dataset_name == "ogbn-papers100M":
+            # manually download (ogb easy to fail): http://snap.stanford.edu/ogb/data/nodeproppred/papers100M-bin.zip
+            download_urls = ["https://snap.stanford.edu/ogb/data/misc/ogbn_papers100M/paperinfo.zip"]  # TODO
+            download_file_name = ["paperinfo.zip"]
 
         super().__init__(
             dataset_name=dataset_name,
@@ -48,6 +62,7 @@ class OGBRGLDataset(DownloadableRGLDataset):
         split_idx = dataset.get_idx_split()
         graph, label = dataset[0]
         n = graph.number_of_nodes()
+        self.backend_dataset = dataset
         self.graph = graph
         self.feat = graph.ndata["feat"]
         self.label = label.flatten()
@@ -57,7 +72,7 @@ class OGBRGLDataset(DownloadableRGLDataset):
 
     # https://github.com/tkipf/gcn/blob/master/gcn/utils.py
     def process(self):
-        dataset_lower = self.dataset_name.lower().replace("-", "_")
+        dataset_lower = self.dataset_name.replace("-", "_")
         if self.dataset_name == "ogbn-arxiv":
             mapping_path = f"{self.graph_root_path}/{dataset_lower}/mapping/nodeidx2paperid.csv.gz"
             nodeidx2paperid = pd.read_csv(mapping_path)
@@ -89,3 +104,34 @@ class OGBRGLDataset(DownloadableRGLDataset):
             assert total_missing == 0, f"missing {total_missing} titles"
             title = title["title"].values
             self.raw_ndata["title"] = title
+
+        elif self.dataset_name == "ogbn-papers100M":  # FIXME link fails
+            mapping_path = f"{self.graph_root_path}/{dataset_lower}/mapping/nodeidx2paperid.csv.gz"
+            nodeidx2paperid = pd.read_csv(mapping_path)
+            map_pid_set = set(nodeidx2paperid["paper id"])
+
+            title_path = f"{self.raw_root_path}/paperinfo/idx_title.tsv"
+            title = pd.read_csv(title_path, sep="\t", header=None).set_index(0)
+            title_pid_set = set(title.index)
+            title = title.reindex(nodeidx2paperid["paper id"])
+            total_missing = title.isnull().sum().sum()
+            if total_missing > 0:
+                # missing 108905842 titles, total 111059956 papers
+                # idx_title.tsv lines: 110549007
+                # idx_abs.tsv lines: 85566493
+                # missing 109388360 abstracts, total 111059956 papers
+                print(f"missing {total_missing} titles, total {len(nodeidx2paperid)} papers")
+                diff = map_pid_set - title_pid_set
+                print(f"diff titles: {len(diff)}")
+                print(f"diff titles: {diff}")
+            title = title[1].values
+            self.raw_ndata["title"] = title
+
+            abstract_path = f"{self.raw_root_path}/paperinfo/idx_abs.tsv"
+            abstract = pd.read_csv(abstract_path, sep="\t", header=None).set_index(0)
+            abstract = abstract.reindex(nodeidx2paperid["paper id"])
+            total_missing = abstract.isnull().sum().sum()
+            if total_missing > 0:
+                print(f"missing {total_missing} abstracts, total {len(nodeidx2paperid)} papers")
+            abstract = abstract[1].values
+            self.raw_ndata["abstract"] = abstract
