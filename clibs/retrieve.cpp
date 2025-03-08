@@ -289,6 +289,112 @@ vector<vector<int>> batch_retrieve(const vector<int>& src, const vector<int>& ds
     return results;
 }
 
+// dense_retrieve: Given an edge list (src, dst) and a seed set,
+// compute a connected subgraph that contains the seed nodes and
+// is as dense as possible among them using a greedy expansion heuristic.
+// The algorithm starts from the subgraph returned by retrieve(), then iteratively
+// adds a neighbor that maximizes the induced subgraph density until no improvement is possible.
+vector<int> dense_retrieve(const vector<int>& src, const vector<int>& dst, const vector<int>& seed) {
+    // Get an initial connected subgraph that connects the seeds using the retrieve() function.
+    vector<int> subgraph = retrieve(src, dst, seed);
+
+    // Determine the number of nodes (assume nodes are 0-indexed).
+    int nNodes = 0;
+    for (size_t i = 0; i < src.size(); i++) {
+        nNodes = max(nNodes, max(src[i], dst[i]));
+    }
+    nNodes++;
+
+    // Build the undirected graph as an adjacency list, avoiding duplicate edges and self loops.
+    vector<unordered_set<int>> adjSets(nNodes);
+    for (size_t i = 0; i < src.size(); i++) {
+        int u = src[i];
+        int v = dst[i];
+        if (u == v)
+            continue;
+        adjSets[u].insert(v);
+        adjSets[v].insert(u);
+    }
+    // Convert sets to vectors.
+    vector<vector<int>> adj(nNodes);
+    for (int i = 0; i < nNodes; i++) {
+        for (int nb : adjSets[i]) {
+            adj[i].push_back(nb);
+        }
+    }
+
+    // Helper lambda to compute the density of the induced subgraph on a set S.
+    // Density is defined as (number of edges in S) divided by the maximum possible number of edges.
+    auto compute_density = [&](const unordered_set<int>& S) -> double {
+        int edge_count = 0;
+        for (int u : S) {
+            for (int nb : adj[u]) {
+                if (S.find(nb) != S.end()) {
+                    edge_count++;
+                }
+            }
+        }
+        edge_count /= 2; // each edge is counted twice
+        int n = S.size();
+        if (n < 2) return 0.0;
+        double max_edges = n * (n - 1) / 2.0;
+        return edge_count / max_edges;
+    };
+
+    // Convert the initial subgraph to a set for easier manipulation.
+    unordered_set<int> S(subgraph.begin(), subgraph.end());
+    double density = compute_density(S);
+
+    bool improved = true;
+    while (improved) {
+        improved = false;
+        int best_candidate = -1;
+        double best_density = density;
+        // Collect candidate nodes: neighbors of S not already in S.
+        unordered_set<int> candidates;
+        for (int u : S) {
+            for (int nb : adj[u]) {
+                if (S.find(nb) == S.end()) {
+                    candidates.insert(nb);
+                }
+            }
+        }
+        // Evaluate each candidate.
+        for (int candidate : candidates) {
+            unordered_set<int> newS = S;
+            newS.insert(candidate);
+            double new_density = compute_density(newS);
+            if (new_density > best_density) {
+                best_density = new_density;
+                best_candidate = candidate;
+            }
+        }
+        // If a candidate improves the density, add it to S.
+        if (best_candidate != -1) {
+            S.insert(best_candidate);
+            density = best_density;
+            improved = true;
+        }
+    }
+
+    return vector<int>(S.begin(), S.end());
+}
+
+// dense_batch_retrieve: Given an edge list (src, dst) and a batch of seed sets,
+// compute for each seed set a connected subgraph that contains the seed nodes and
+// is as dense as possible among them using the dense_retrieve algorithm.
+vector<vector<int>> dense_batch_retrieve(const vector<int>& src, const vector<int>& dst, const vector<vector<int>>& seedBatch) {
+    vector<vector<int>> results;
+    for (const auto &seed : seedBatch) {
+        if (seed.empty()) {
+            results.push_back({});
+        } else {
+            results.push_back(dense_retrieve(src, dst, seed));
+        }
+    }
+    return results;
+}
+
 // steiner_batch_retrieve: Given an edge list (src, dst) and a batch of seed sets,
 // compute a heuristic Steiner tree for each seed set. For each seed set, the algorithm
 // runs BFS from each seed to compute pairwise shortest path distances, constructs a
@@ -490,6 +596,21 @@ int main() {
         cout << endl;
     }
     
+    // Test dense_batch_retrieve() on the large graph with two seed sets: {2, 9} and {0, 4, 7}
+    vector<vector<int>> seedBatch_dense = {
+        {2, 9},
+        {0, 4, 7}
+    };
+    vector<vector<int>> denseResults = dense_batch_retrieve(src_large, dst_large, seedBatch_dense);
+    cout << "\nLarge Graph Test: dense_batch_retrieve" << endl;
+    for (size_t i = 0; i < denseResults.size(); i++) {
+        cout << "Dense subgraph for seed set " << i << " contains " << denseResults[i].size() << " nodes:" << endl;
+        for (int node : denseResults[i]) {
+            cout << node << " ";
+        }
+        cout << endl;
+    }
+    
     return 0;
 }
 
@@ -498,4 +619,5 @@ PYBIND11_MODULE(libretrieval, m) {
     m.def("retrieve", &retrieve, "Retrieve subgraph using shortest paths");
     m.def("batch_retrieve", &batch_retrieve, "Retrieve subgraph for a batch of seed vectors using shortest paths");
     m.def("steiner_batch_retrieve", &steiner_batch_retrieve, "Retrieve subgraph for a batch of seed vectors using a heuristic Steiner tree algorithm");
+    m.def("dense_batch_retrieve", &dense_batch_retrieve, "Retrieve subgraph for a batch of seed vectors that contains seed nodes and is as dense as possible");
 }
