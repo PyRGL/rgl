@@ -18,14 +18,27 @@ RGL is a **friendly and efficient Graph Retrieval-Augmented Generation (GraphRAG
 - Homepage: https://github.com/PyRGL/rgl
 - Documentation: https://rgl.readthedocs.io
 
+## Requirements
+
+- DGL: https://www.dgl.ai/pages/start.html
+- PyG: https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html
+
 ## Installation
 
 ```bash
 pip install rgl
 ```
 
+## Compile C++ libraries
+
+```bash
+cd clibs
+./build_linux.sh
+```
+
 ## Run demos
 
 ```bash
-python demo/some_demo.py
+cd demo
+python demo_x.py
 ```
