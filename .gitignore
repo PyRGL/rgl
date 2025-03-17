@@ -1,5 +1,7 @@
 /dataset/
 /private/
+/.history/
+demo_load_rgl_dataset.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
