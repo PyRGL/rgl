@@ -2,12 +2,13 @@ from dgl.data import CiteseerGraphDataset
 import torch
 import dgl
 
-class CITESEERRGLDataset:
+class CiteseerRGLDataset:
     def __init__(self, dataset_root_path=None):
         """
         Use DGL's CiteSeer dataset
         
         :param dataset_root_path: Path to store the dataset
+        :param text_file_path: Optional path to a CSV file containing paper_id and text (title/abstract)
         """
         self.dataset_root_path = dataset_root_path if dataset_root_path else "dataset/citeseer"
         self.raw_ndata = {}

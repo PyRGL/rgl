@@ -1,7 +1,7 @@
 from rgl.datasets.ogb import OGBRGLDataset
 from rgl.datasets.citation_graph import CoraRGLDataset
-from rgl.datasets.pubmed import PUBMEDRGLDataset
-from rgl.datasets.citeseer import CITESEERRGLDataset
+from rgl.datasets.pubmed import PubmedRGLDataset
+from rgl.datasets.citeseer import CiteseerRGLDataset
 
 dataset = CoraRGLDataset("../dataset/cora")
 print("loading cora")
@@ -42,7 +42,7 @@ print(dataset.raw_ndata["title"][0])
 
 print("-" * 50)
 
-dataset = PUBMEDRGLDataset("../dataset/pubmed")
+dataset = PubmedRGLDataset("../dataset/pubmed")
 print("loading pubmed")
 print(dataset.graph)
 print(dataset.feat.shape)
@@ -53,7 +53,7 @@ print(dataset.test_mask)
 
 print("-" * 50)
 
-dataset = CITESEERRGLDataset("../dataset/citeseer")
+dataset = CiteseerRGLDataset("../dataset/citeseer")
 print("loading pubmed")
 print(dataset.graph)
 print(dataset.feat.shape)

@@ -2,7 +2,7 @@ from dgl.data import PubmedGraphDataset
 import torch
 import dgl
 
-class PUBMEDRGLDataset:
+class PubmedRGLDataset:
     def __init__(self, dataset_root_path=None):
         """
         Use DGL's PubMed dataset
