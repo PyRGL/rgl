@@ -13,10 +13,12 @@ RGL is a **friendly and efficient Graph Retrieval-Augmented Generation (GraphRAG
 🧠 **AI-Focused** – Tailored for **GraphRAG** research and applications  
 🔗 **Scalability** – Handles large-scale graphs with ease  
 
-## Homepage and Documentation
+## Homepage, Documentation and Paper
 
 - Homepage: https://github.com/PyRGL/rgl
 - Documentation: https://rgl.readthedocs.io
+- Paper Access:
+    - ArXiv: https://arxiv.org/abs/2503.19314
 
 ## Requirements
 
