@@ -44,3 +44,17 @@ cd clibs
 cd demo
 python demo_x.py
 ```
+
+## Cite
+
+```
+@misc{li2025rglgraphcentricmodularframework,
+      title={RGL: A Graph-Centric, Modular Framework for Efficient Retrieval-Augmented Generation on Graphs}, 
+      author={Yuan Li and Jun Hu and Jiaxin Jiang and Zemin Liu and Bryan Hooi and Bingsheng He},
+      year={2025},
+      eprint={2503.19314},
+      archivePrefix={arXiv},
+      primaryClass={cs.IR},
+      url={https://arxiv.org/abs/2503.19314}, 
+}
+```
