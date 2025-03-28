@@ -17,8 +17,8 @@ relative_files = [f[len("rgl/") :] for f in package_files]
 
 setup(
     name="rgl",
-    python_requires=">3.5.0",
-    version="0.0.1",
+    python_requires=">3.7.0",
+    version="0.0.2",
     author="anthonynus",
     author_email="e0403849@u.nus.edu",
     packages=packages,
@@ -27,6 +27,6 @@ setup(
     package_data={"rgl": relative_files},
     description="RGL - RAG-on-Graphs Library",
     license="GNU General Public License v3.0 (See LICENSE)",
-    long_description="RGL - RAG-on-Graphs Library",
+    long_description=open("README.rst", "r", encoding="utf-8").read(),
     url="https://github.com/PyRGL/rgl",
 )
