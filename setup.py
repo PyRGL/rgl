@@ -11,6 +11,12 @@ print("packages:", packages)
 # This returns a list of file paths like "rgl/graph_retrieval/libretrieval.cpython-310-x86_64-linux-gnu.so"
 package_files = glob.glob("rgl/graph_retrieval/libretrieval.cpython-3*-x86_64-linux-gnu.so")
 
+description = "RGL - RAG-on-Graphs Library"
+try:
+    long_description = open("README.md", "r", encoding="utf-8").read()
+except Exception:
+    long_description = description
+
 # Adjust paths to be relative to the package directory ("rgl").
 # That is, remove the leading "rgl/" portion.
 relative_files = [f[len("rgl/") :] for f in package_files]
@@ -25,8 +31,8 @@ setup(
     install_requires=["ogb", "patool", "faiss-cpu", "rouge-score", "gradio"],
     # extras_require={"torch-2.4": ["dgl @ https://data.dgl.ai/wheels/torch-2.4/dgl-0.9.0-cp38-cp38-linux_x86_64.whl"]},
     package_data={"rgl": relative_files},
-    description="RGL - RAG-on-Graphs Library",
+    description=description,
     license="GNU General Public License v3.0 (See LICENSE)",
-    long_description=open("README.rst", "r", encoding="utf-8").read(),
+    long_description=long_description,
     url="https://github.com/PyRGL/rgl",
 )
