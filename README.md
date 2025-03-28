@@ -136,6 +136,26 @@ We recommend you to get started with some demo.
 + [Abstract generation via RGL](demo/demo_rag_on_graph_abstract_generation.py)
 + [Paper classification via RGL](demo/demo_rag_on_graph_paper_classification.py)
 
+
+### Applications with GUI
+
++ [Paper classification via RGL GUI](demo/demo_gui_rag_on_graph_paper_classification.py)
+
+To run the GUI applications, first install Gradio:
+```bash
+pip install gradio
+```
+
+
+
+
+After running the demo, please visit http://127.0.0.1:7860 in your browser to access the interface.
+
+![](figures/rgl_demo_gui0.png)
+
+
+
+
 ## Cite
 
 ```

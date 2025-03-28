@@ -3,7 +3,7 @@ import glob
 from setuptools import setup, find_packages
 
 packages = find_packages(
-    exclude=["benchmarks", "clibs", "data", "demo", "dist", "doc", "docs", "logs", "models", "test"]
+    exclude=["benchmarks", "clibs", "data", "demo", "dist", "doc", "docs", "logs", "models", "test", "figures"]
 )
 print("packages:", packages)
 
@@ -18,7 +18,7 @@ relative_files = [f[len("rgl/") :] for f in package_files]
 setup(
     name="rgl",
     python_requires=">3.7.0",
-    version="0.0.2",
+    version="0.0.3",
     author="anthonynus",
     author_email="e0403849@u.nus.edu",
     packages=packages,
