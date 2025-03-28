@@ -16,9 +16,6 @@ from collections import defaultdict
 import itertools
 
 from rgl.utils.data_utils import extract_archive
-from rgl.utils.utils import get_logger
-
-logger = get_logger()
 
 
 class CoraRGLDataset(DownloadableRGLDataset):

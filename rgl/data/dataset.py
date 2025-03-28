@@ -38,7 +38,6 @@ class DownloadableRGLDataset(object):
         self.download_file_names = download_file_names
 
         self.graph_root_path = opj(self.dataset_root_path, "graph")
-
         self.download_root_path = os.path.join(self.dataset_root_path, "download")
         self.raw_root_path = os.path.join(self.dataset_root_path, "raw")
         self.processed_root_path = os.path.join(self.dataset_root_path, "processed")

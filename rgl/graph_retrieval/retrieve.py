@@ -10,50 +10,32 @@ batch_retrieve = libretrieval.batch_retrieve
 steiner_batch_retrieve = libretrieval.steiner_batch_retrieve
 dense_batch_retrieve = libretrieval.dense_batch_retrieve
 
-# # C
-# import numpy as np
-# import ctypes
-# import os
 
-# def load_c_retrieve():
-#     lib_name = "libretrieval.dll" if os.name == "nt" else "libretrieval.so"
-#     lib_path = os.path.join(os.path.dirname(__file__), lib_name)
-#     lib = ctypes.CDLL(lib_path)
-#     c_retrieve = lib.retrieve
+def khop_batch_retrieve(dgl_graph, k, batch_anchors):
+    batch_neighbors = []
 
-#     lib.retrieve.argtypes = [
-#         ctypes.POINTER(ctypes.c_int),  # src
-#         ctypes.POINTER(ctypes.c_int),  # dst
-#         ctypes.POINTER(ctypes.c_int),  # seed
-#         ctypes.c_int,  # num_edge
-#         ctypes.c_int,  # num_seed
-#         ctypes.POINTER(ctypes.c_int),  # num_retrieved
-#     ]
-#     lib.retrieve.restype = ctypes.POINTER(ctypes.c_int)
+    for anchors in batch_anchors:
+        # Start with the anchor nodes.
+        visited = set(anchors)
+        current_nodes = set(anchors)
 
-#     def ndcg_score(src, dst, seeds):
+        # Iterate k times to traverse k-hop neighbors.
+        for _ in range(k):
+            next_nodes = set()
+            for node in current_nodes:
+                # Retrieve neighbors; here we use .successors() which works for both
+                # directed (outgoing edges) and undirected graphs.
+                # Adjust to .predecessors() if you need incoming neighbors instead.
+                neighbors = dgl_graph.successors(node).tolist()
+                next_nodes.update(neighbors)
+            # Update visited with new nodes and set them as current for the next hop.
+            visited.update(next_nodes)
+            current_nodes = next_nodes
 
-#         src = list(src)
-#         dst = list(dst)
-#         num_edges = len(src)
-#         seeds = list(seeds)
-#         num_seeds = len(seeds)
-#         num_retrieved = ctypes.c_int(0)
-#         rel_type = ctypes.c_int * num_edges
+        # Convert the visited set to list and add to the batch results.
+        batch_neighbors.append(list(visited))
 
-#         result_ptr = c_retrieve(
-#             rel_type(*src),
-#             rel_type(*dst),
-#             rel_type(*seeds),
-#             ctypes.c_int(num_edges),
-#             ctypes.c_int(num_seeds),
-#             ctypes.byref(num_retrieved),
-#         )
-#         result = [result_ptr[i] for i in range(num_retrieved.value)]
-#         return result
-
-#     return ndcg_score
-# retrieve = load_c_retrieve()
+    return batch_neighbors
 
 
 def retrieval_pcst(graph, q_emb, topk=3, topk_e=3, cost_e=0.5):
@@ -298,3 +280,49 @@ def batch_retrieval_pcst(graph, q_emb_batch, topk=3, topk_e=3, cost_e=0.5):
         batch_selected_edges.append(selected_edges)
 
     return batch_selected_nodes, batch_selected_edges
+
+
+# # C
+# import numpy as np
+# import ctypes
+# import os
+
+# def load_c_retrieve():
+#     lib_name = "libretrieval.dll" if os.name == "nt" else "libretrieval.so"
+#     lib_path = os.path.join(os.path.dirname(__file__), lib_name)
+#     lib = ctypes.CDLL(lib_path)
+#     c_retrieve = lib.retrieve
+
+#     lib.retrieve.argtypes = [
+#         ctypes.POINTER(ctypes.c_int),  # src
+#         ctypes.POINTER(ctypes.c_int),  # dst
+#         ctypes.POINTER(ctypes.c_int),  # seed
+#         ctypes.c_int,  # num_edge
+#         ctypes.c_int,  # num_seed
+#         ctypes.POINTER(ctypes.c_int),  # num_retrieved
+#     ]
+#     lib.retrieve.restype = ctypes.POINTER(ctypes.c_int)
+
+#     def ndcg_score(src, dst, seeds):
+
+#         src = list(src)
+#         dst = list(dst)
+#         num_edges = len(src)
+#         seeds = list(seeds)
+#         num_seeds = len(seeds)
+#         num_retrieved = ctypes.c_int(0)
+#         rel_type = ctypes.c_int * num_edges
+
+#         result_ptr = c_retrieve(
+#             rel_type(*src),
+#             rel_type(*dst),
+#             rel_type(*seeds),
+#             ctypes.c_int(num_edges),
+#             ctypes.c_int(num_seeds),
+#             ctypes.byref(num_retrieved),
+#         )
+#         result = [result_ptr[i] for i in range(num_retrieved.value)]
+#         return result
+
+#     return ndcg_score
+# retrieve = load_c_retrieve()

@@ -5,15 +5,18 @@ import faiss
 
 
 class VectorSearchEngine(object):
-    def __init__(self, vectors):
+    def __init__(self, vectors, index=None):
         super().__init__()
         if not isinstance(vectors, np.ndarray):
             vectors = vectors.numpy()
         self.vectors = np.array(vectors)
         self.dim = self.vectors.shape[1]
 
-        self.index = faiss.IndexFlatIP(self.dim)
-        self.index.add(self.vectors)
+        if index is not None:
+            self.index = index
+        else:
+            self.index = faiss.IndexFlatIP(self.dim)
+            self.index.add(self.vectors)
 
     def search(self, query_vectors, k=10):
         query_vectors = np.asarray(query_vectors)
