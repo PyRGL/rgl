@@ -23,7 +23,7 @@ RGL is a **friendly and efficient Graph Retrieval-Augmented Generation (GraphRAG
 ## Requirements
 
 - DGL: https://www.dgl.ai/pages/start.html
-- PyG: https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html
+- PyG (Optional): https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html
 
 ## Installation
 
