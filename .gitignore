@@ -1,4 +1,5 @@
 /dataset/
+/demo/dataset/
 /private/
 /.history/
 demo_load_rgl_dataset.py

@@ -10,8 +10,9 @@ from openai import OpenAI
 import os
 from rouge_score import rouge_scorer
 
+
 def evaluate_abstracts(generated_abstract, ground_truth_abstract):
-    scorer = rouge_scorer.RougeScorer(['rouge1', 'rouge2', 'rougeL'], use_stemmer=True)
+    scorer = rouge_scorer.RougeScorer(["rouge1", "rouge2", "rougeL"], use_stemmer=True)
     scores = scorer.score(ground_truth_abstract, generated_abstract)
     return scores
 
@@ -19,7 +20,7 @@ def evaluate_abstracts(generated_abstract, ground_truth_abstract):
 client = OpenAI(api_key="xxxxxxxxxxxxxxx", base_url="https://api.deepseek.com")
 model = "deepseek-chat"
 
-dataset = OGBRGLDataset("ogbn-arxiv", "../dataset/ogbn-arxiv")
+dataset = OGBRGLDataset("ogbn-arxiv", "./dataset/ogbn-arxiv")
 titles = dataset.raw_ndata["title"]
 abstracts = dataset.raw_ndata["abstract"]
 src = dataset.graph.edges()[0].numpy().tolist()

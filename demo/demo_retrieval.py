@@ -5,7 +5,7 @@ from rgl.utils.utils import get_logger
 
 logger = get_logger()
 
-dataset = OGBRGLDataset("ogbn-arxiv", "../dataset/ogbn-arxiv")
+dataset = OGBRGLDataset("ogbn-arxiv", "./dataset/ogbn-arxiv")
 query_node_indices = [0, 1]
 query_vectors = dataset.feat[query_node_indices]  # TODO multi query node; query text
 engine = VectorSearchEngine(dataset.feat)
